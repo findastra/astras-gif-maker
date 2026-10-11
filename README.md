@@ -12,3 +12,5 @@ Open `index.html` in a browser. It shows a placeholder page only.
 
 - No GIF making yet.
 - Status is **growing** (art done, no working app yet).
+
+Desktop appearance draft updated 2026-10-11: see [desktop details](desktop-pet-20261011.json). This changes the desktop pet, not application features.

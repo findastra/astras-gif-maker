@@ -13,5 +13,7 @@
   },
   "built_with": "Claude Haiku 5.5 (claude-haiku-5-5), 2026-10-09",
   "art": "art/frames/gif-giraffe",
-  "icon": "icon.png"
+  "icon": "icon.png",
+  "desktop_pet": "desktop-pet-20261011.json",
+  "desktop_art_built_with": "OpenAI Codex (GPT-6), built-in imagegen and native renderer, 2026-10-11"
 }
