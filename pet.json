@@ -13,12 +13,7 @@
   },
   "built_with": "Claude Haiku 5.5 (claude-haiku-5-5), 2026-10-09; OpenAI Codex (GPT-6), 2026-10-11",
   "art": "art/frames/gif-giraffe",
-  "icon": "icon.png",
-  "desktop_pet": "desktop-pet-20261011.json",
-  "desktop_art_built_with": "OpenAI Codex (GPT-6), built-in imagegen and native renderer, 2026-10-11",
-  "audit": {
-    "cadence": "weekly",
-    "subject": "my plan",
-    "needs": "a job: what kind of GIFs should I make?"
-  }
+  "icon": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/app-icons/astras-gif-maker/icon.png",
+  "desktop_pet": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/gif-giraffe/desktop-pet-20261011.json",
+  "desktop_art_built_with": "OpenAI Codex (GPT-6), built-in imagegen and native renderer, 2026-10-11"
 }
