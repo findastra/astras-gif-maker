@@ -1,10 +1,11 @@
 # AGENTS.md
 
-This is **Gif Giraffe**, a pet app in Astra's PetOS. It is a placeholder.
+This is **Gif Giraffe**, a pet in Astra's PetOS. Its pet program is **Astra's GIF Maker**, and its native program (`astras-gif-maker-20261022.html`) makes GIFs in the browser.
 
 - Read `pet.json` and `PET-FILES` rules in `astras-pet-os` before changing anything.
 - Keep `pet.json`, `sprite.json` and `index.html` real files; the hub checks them.
-- Built with: Claude Haiku 5.5 (claude-haiku-5-5), 2026-10-09.
+- Changes are recorded in this repo's `changes/` folder, one file per change (`changes/<topic>-YYYYMMDD.md`), never as a new line here (Astra, 2026-10-21, hub card 069).
+- First built with: Claude Haiku 5.5 (claude-haiku-5-5), 2026-10-09.
 
 Desktop appearance revision by OpenAI Codex (GPT-6), 2026-10-11. See https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/gif-giraffe/desktop-pet-20261011.json; runtime behavior is in astras-pet-os.
 
