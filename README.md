@@ -1,6 +1,6 @@
 # Gif Giraffe
 
-*An Intelligent App, or Pet, by Astra.*
+*By Astra.*
 
 Gif Giraffe is a placeholder for a pet app that will make GIFs. Nothing works yet. Its pixel twin and nine mood frames are in `art/frames/gif-giraffe/`, and `https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/app-icons/astras-gif-maker/icon.png` is the idle frame.
 
