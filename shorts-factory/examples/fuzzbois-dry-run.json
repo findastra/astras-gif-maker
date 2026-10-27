@@ -1,0 +1,47 @@
+{
+  "schema": "shorts-factory-script-v1",
+  "title": "Meet the Fuzzbois",
+  "topic": "what a Fuzzboi is and how its hex code sets its look",
+  "preset": "fuzzbois",
+  "slides": [
+    {
+      "narration": "Stop scrolling. This little guy is a Fuzzboi.",
+      "image_prompt": "one round fuzzy Fuzzboi waving at the camera",
+      "caption": "stop scrolling. this is a fuzzboi.",
+      "motion": "zoom-in",
+      "hex": "ff3ec8"
+    },
+    {
+      "narration": "Every Fuzzboi is hand drawn by Astra.",
+      "image_prompt": "a Fuzzboi sitting on a sketchbook page next to pencil lines",
+      "motion": "pan-right",
+      "hex": "5ffbf1"
+    },
+    {
+      "narration": "And each one gets its look from a six digit hex code.",
+      "image_prompt": "a Fuzzboi holding a sign with a hex colour code on it",
+      "caption": "its look = a 6-digit hex code",
+      "motion": "zoom-out",
+      "hex": "c0f803"
+    },
+    {
+      "narration": "Change the code, and you get a whole new Fuzzboi.",
+      "image_prompt": "three Fuzzbois side by side in different colours",
+      "motion": "pan-left",
+      "hex": "ffe94d"
+    },
+    {
+      "narration": "Which colour would yours be? Tell me in the comments.",
+      "image_prompt": "a Fuzzboi looking curious with a question mark",
+      "motion": "pan-up",
+      "hex": "9b7bff"
+    },
+    {
+      "narration": "Follow for more Fuzzbois.",
+      "image_prompt": "a crowd of tiny Fuzzbois cheering",
+      "caption": "follow for more fuzzbois",
+      "motion": "zoom-in",
+      "hex": "ff8ad8"
+    }
+  ]
+}

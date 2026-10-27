@@ -7,6 +7,20 @@
   "runs_on": "Windows desktop, in a browser page.",
   "entry": "index.html",
   "status": "growing",
+  "tools": [
+    {
+      "name": "shorts-factory",
+      "label": "astras-gif-maker-v0.1.0-shorts-factory-v0.1.0",
+      "version": "v0.1.0",
+      "does": "Makes 1080x1920 vertical videos from a topic or script: pictures, narration, burned-in captions, Ken Burns motion and crossfades.",
+      "intended_use": "TikToks and Reels for Fuzzbois, Mommy's promos and VR clips, rendered on Astra's PC.",
+      "entry": "shorts-factory/run-shorts-factory-20261026.ps1",
+      "docs": "docs/shorts-factory-how-to-20261026.html",
+      "public": true,
+      "runs": "this PC (Python and ffmpeg); offline by default, OpenAI or Anthropic APIs only when chosen",
+      "state": "Built and tested on Linux; not run on Windows yet"
+    }
+  ],
   "hub": {
     "topic": "pet-app",
     "home": "README.md"

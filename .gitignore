@@ -1,0 +1,9 @@
+# Shorts Factory: rendered videos, run folders and caches never go in the repo
+*.mp4
+*.mov
+*.wav
+shorts-factory/runs/
+shorts-factory/out/
+__pycache__/
+.pytest_cache/
+.env
