@@ -1,4 +1,4 @@
-# Gif Giraffe
+# Astra's Gif Maker
 
 *By Astra.*
 
