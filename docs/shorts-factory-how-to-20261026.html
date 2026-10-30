@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shorts Factory how-to</title>
+<meta name="description" content="Shorts Factory, a tool of Astra's GIF Maker: topic to 1080x1920 vertical video with captions. By Astra.">
+<style>
+  :root{
+    --bg:#f6f3ff; --panel:#ffffff; --ink:#1b1430; --muted:#5d5378; --edge:#d9d0f5;
+    --accent:#6b3fe0; --accent-ink:#ffffff; --code:#efeafd; --ok:#1a7f4b; --warn:#9a6500;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0a0714; --panel:#160d2a; --ink:#efeaff; --muted:#a89bd1; --edge:rgba(139,92,246,.32);
+      --accent:#9b7bff; --accent-ink:#0a0714; --code:#1f1338; --ok:#5ff3a6; --warn:#ffd36b;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0a0714; --panel:#160d2a; --ink:#efeaff; --muted:#a89bd1; --edge:rgba(139,92,246,.32);
+    --accent:#9b7bff; --accent-ink:#0a0714; --code:#1f1338; --ok:#5ff3a6; --warn:#ffd36b;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+  main{max-width:46rem;margin:0 auto;padding:clamp(16px,6vw,72px) clamp(16px,5vw,40px) 64px}
+  h1{font-size:clamp(24px,4vw,32px);line-height:1.2;margin:0 0 4px}
+  h2{font-size:18px;margin:36px 0 10px}
+  h3{font-size:15px;margin:22px 0 6px}
+  p,li{color:var(--ink)}
+  .sub{color:var(--muted);margin:0 0 6px}
+  .label{font:12px/1 ui-monospace,Consolas,monospace;color:var(--muted);word-break:break-all}
+  code,pre{font-family:ui-monospace,"Cascadia Code",Consolas,monospace;font-size:13.5px}
+  code{background:var(--code);padding:1px 5px;border-radius:5px}
+  pre{background:var(--code);padding:12px 14px;border-radius:10px;overflow-x:auto;border:1px solid var(--edge)}
+  pre code{background:none;padding:0}
+  .card{background:var(--panel);border:1px solid var(--edge);border-radius:12px;padding:16px 18px;margin:14px 0}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px}
+  .flow span{background:var(--code);border:1px solid var(--edge);border-radius:999px;padding:3px 10px}
+  .flow i{color:var(--muted);font-style:normal}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;vertical-align:top;padding:8px 8px;border-bottom:1px solid var(--edge)}
+  th{color:var(--muted);font-weight:600}
+  .table-wrap{overflow-x:auto}
+  .free{color:var(--ok);font-weight:600}
+  .paid{color:var(--warn);font-weight:600}
+  a{color:var(--accent)}
+  .back{display:inline-block;margin-top:8px}
+</style>
+</head>
+<body>
+<main>
+  <p class="label">astras-gif-maker-v0.1.0-shorts-factory-v0.1.0</p>
+  <h1>Shorts Factory</h1>
+  <p class="sub">A tool of Astra&rsquo;s GIF Maker (Gif Giraffe). <em>By Astra.</em></p>
+  <p>It turns a topic, or a script you wrote, into a 1080&times;1920 vertical video for TikTok, Reels or Shorts:
+     narration, burned-in captions, slow Ken Burns motion on every picture and crossfades between them.</p>
+  <div class="card flow" aria-label="Pipeline">
+    <span>topic + preset</span><i>&rarr;</i><span>script, 5&ndash;8 slides</span><i>&rarr;</i><span>pictures</span>
+    <i>&rarr;</i><span>voice per slide</span><i>&rarr;</i><span>ffmpeg</span><i>&rarr;</i><span>MP4 with captions</span>
+  </div>
+  <p>Every stage can run for free on your PC. Paid AI services are used only when you choose them.</p>
+
+  <h2>1. Set it up once (Windows)</h2>
+  <p>It needs Python 3.10+ and ffmpeg. In PowerShell, from <code>astras-gif-maker\shorts-factory</code>:</p>
+  <pre><code>.\run-shorts-factory-20261026.ps1 -Install check</code></pre>
+  <p><code>-Install</code> installs only what is missing, with winget (Python 3.12, Gyan.FFmpeg). Leave it off to just check.
+     Running it again changes nothing. If PowerShell blocks the script:
+     <code>powershell -ExecutionPolicy Bypass -File .\run-shorts-factory-20261026.ps1 check</code>.</p>
+
+  <h2>2. Make the free sample</h2>
+  <pre><code>.\run-shorts-factory-20261026.ps1 -Sample</code></pre>
+  <p>Renders <code>examples\fuzzbois-dry-run.json</code> with placeholder Fuzzboi blobs and Windows&rsquo; own voice, no
+     internet, and opens the video. Videos go to
+     <code>%LOCALAPPDATA%\astras-pet-os\astras-gif-maker\shorts-factory\videos\</code> unless you pass <code>--out</code>.</p>
+
+  <h2>3. Recipes</h2>
+  <h3>Fuzzbois TikTok from your own drawings (free)</h3>
+  <pre><code>.\run-shorts-factory-20261026.ps1 make --offline --preset fuzzbois `
+  --script .\my-fuzzbois.json --images "$HOME\Pictures\Fuzzbois export"</code></pre>
+  <p>Pictures are used in name order, one per slide (name them <code>01.png</code>, <code>02.png</code>&hellip;).
+     A slide&rsquo;s own <code>"image"</code> wins. Put each Fuzzboi&rsquo;s 6-digit look code in the slide&rsquo;s
+     <code>"hex"</code> so placeholders and image prompts use its colour.</p>
+  <h3>Mommy&rsquo;s promo, script written by a model</h3>
+  <pre><code>$env:ANTHROPIC_API_KEY = "&lt;API key with a spend limit&gt;"
+.\run-shorts-factory-20261026.ps1 script --topic "Mommy's Friday dance class" --preset mommys --out .\mommys.json
+# read and edit mommys.json, then:
+.\run-shorts-factory-20261026.ps1 make --script .\mommys.json --images .\vrchat-captures</code></pre>
+  <h3>VR clip from screenshots</h3>
+  <pre><code>.\run-shorts-factory-20261026.ps1 make --offline --preset vr-clips --script .\vr.json --images "$HOME\Pictures\VRChat\2026-10"</code></pre>
+
+  <h2>4. The script file</h2>
+  <p>Plain JSON you can write by hand. 5 to 8 slides. Check one with <code>validate my.json</code>.</p>
+<pre><code>{
+  "schema": "shorts-factory-script-v1",
+  "title": "Meet the Fuzzbois",
+  "preset": "fuzzbois",
+  "slides": [
+    { "narration": "Stop scrolling. This little guy is a Fuzzboi.",
+      "image_prompt": "one round fuzzy Fuzzboi waving",
+      "caption": "stop scrolling",     // optional: on-screen text if shorter than narration
+      "image": "art/01.png",           // optional: relative to this file
+      "motion": "zoom-in",             // optional: zoom-in zoom-out pan-left pan-right pan-up pan-down still
+      "hex": "ff3ec8" }                // optional: a Fuzzboi's look code
+  ]
+}</code></pre>
+  <p>(JSON has no comments; they are shown here only to explain the fields.)</p>
+
+  <h2>5. Providers and keys</h2>
+  <p>Keys are read from environment variables only and never written to a file. Ask API Fairy for a key
+     (key requests) rather than pasting one into a chat. Never use the Claude Max plan here: the Anthropic provider needs
+     an API key.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Stage</th><th>Choice</th><th>Cost</th><th>Set</th></tr></thead>
+    <tbody>
+      <tr><td>Script</td><td><code>--script file.json</code></td><td class="free">free</td><td>nothing</td></tr>
+      <tr><td></td><td>anthropic</td><td class="paid">API</td><td><code>ANTHROPIC_API_KEY</code>, optional <code>ANTHROPIC_MODEL</code></td></tr>
+      <tr><td></td><td>openai</td><td class="paid">API</td><td><code>OPENAI_API_KEY</code>, optional <code>OPENAI_MODEL</code></td></tr>
+      <tr><td>Pictures</td><td><code>--images &lt;folder&gt;</code></td><td class="free">free</td><td>nothing</td></tr>
+      <tr><td></td><td>placeholder (default with no folder)</td><td class="free">free</td><td>nothing</td></tr>
+      <tr><td></td><td><code>--images-from openai</code></td><td class="paid">API</td><td><code>OPENAI_API_KEY</code>, optional <code>OPENAI_IMAGE_MODEL</code> (gpt-image-1)</td></tr>
+      <tr><td>Voice</td><td>sapi (Windows voices; auto picks it first)</td><td class="free">free</td><td>optional <code>SHORTS_SAPI_VOICE</code>, <code>SHORTS_SAPI_RATE</code></td></tr>
+      <tr><td></td><td>piper (natural, offline)</td><td class="free">free</td><td><code>PIPER_VOICE</code> = a voice <code>.onnx</code>; <code>PIPER_BIN</code> if not on PATH</td></tr>
+      <tr><td></td><td>espeak (espeak-ng)</td><td class="free">free</td><td>optional <code>SHORTS_ESPEAK_VOICE</code></td></tr>
+      <tr><td></td><td>silent (captions only)</td><td class="free">free</td><td>nothing</td></tr>
+      <tr><td></td><td><code>--tts openai</code></td><td class="paid">API</td><td><code>OPENAI_API_KEY</code>, optional <code>OPENAI_TTS_MODEL</code>, <code>OPENAI_TTS_VOICE</code></td></tr>
+    </tbody>
+  </table></div>
+  <p><code>--offline</code> refuses every paid or network choice, so a dry run can never spend money.
+     Re-runs reuse voices and OpenAI pictures already made in the same <code>--work</code> folder.</p>
+
+  <h2>6. Handy options</h2>
+  <div class="table-wrap"><table>
+    <tbody>
+      <tr><td><code>--crossfade 0.5</code></td><td>seconds of fade between slides</td></tr>
+      <tr><td><code>--transition fade</code></td><td>also fadeblack, fadewhite, slideleft, slideup, circleopen, dissolve, smoothleft</td></tr>
+      <tr><td><code>--supersample 2</code></td><td>smoother motion; 1 renders about twice as fast</td></tr>
+      <tr><td><code>--crf 23</code></td><td>quality: 18 is sharper and bigger, 28 smaller</td></tr>
+      <tr><td><code>--no-captions</code></td><td>no burned-in text</td></tr>
+      <tr><td><code>--work &lt;folder&gt;</code></td><td>keeps <code>script.json</code>, pictures, voices, <code>captions.ass</code>, <code>filter-graph.txt</code> and <code>result.json</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>7. Limits</h2>
+  <ul>
+    <li>Tested on Linux with espeak-ng and placeholders. The Windows voice (sapi), Piper, the PowerShell script and the
+        paid providers have not been run yet: no keys or Windows PC were available.</li>
+    <li>Default model names (<code>claude-sonnet-5-5</code>, <code>gpt-4.1-mini</code>, <code>gpt-image-1</code>,
+        <code>gpt-4o-mini-tts</code>) were not checked against the live APIs; set the <code>*_MODEL</code> variables if
+        one is refused.</li>
+    <li>No background music, no video clips as input (pictures only), one caption style per preset.</li>
+    <li>Captions use Arial Black or Arial; on a PC without them, libass picks a fallback font.</li>
+  </ul>
+
+  <a class="back" href="../index.html">&larr; Back to Gif Giraffe</a>
+</main>
+</body>
+</html>

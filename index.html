@@ -4,9 +4,76 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Gif Giraffe</title>
+  <style>
+    :root{--bg:#0a0714;--ink:#efeaff;--muted:#a89bd1;--edge:rgba(139,92,246,.45);--tool:#5ffbf1;--accent:#9b7bff}
+    body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 system-ui,sans-serif;padding:clamp(16px,6vw,72px)}
+    main{max-width:40rem;margin:0 auto}
+    .tool-panel{border:1px solid var(--edge);border-radius:12px;margin:28px 0 0;padding:0 16px 14px}
+    .tool-panel>summary{list-style:none;cursor:pointer;transform:translateY(-0.8em);display:inline-block;
+      background:var(--bg);padding:0 8px;margin-left:-4px;font:13px ui-monospace,Consolas,monospace;color:var(--muted)}
+    .tool-panel>summary::-webkit-details-marker{display:none}
+    .tool-panel>summary::before{content:"\25BE  "}
+    .tool-panel:not([open])>summary::before{content:"\25B8  "}
+    .tool-box{position:relative;border:1px solid var(--tool);border-radius:999px;padding:16px 20px 12px;margin-top:4px}
+    .tool-box .name{position:absolute;top:-0.75em;left:18px;background:var(--bg);padding:0 6px;display:flex;gap:5px;
+      align-items:center;font:12px ui-monospace,Consolas,monospace;max-width:calc(100% - 36px);overflow:hidden;
+      white-space:nowrap;text-overflow:ellipsis}
+    .light{width:12px;height:12px;border-radius:50%;border:1px solid #000;padding:0;cursor:pointer;flex:none}
+    .light.on{background:#22c55e}.light.off{background:#ef4444}
+    .light.ok{background:#3b82f6}.light.fix{background:#eab308}
+    .tool-box p{margin:0 0 8px;color:var(--ink);font-size:14px}
+    .open{display:inline-block;padding:7px 14px;border-radius:9px;background:var(--accent);color:var(--bg);
+      font-weight:700;text-decoration:none;font-size:14px}
+    .why{color:var(--muted);font-size:13px;margin:8px 0 0;min-height:1em}
+  </style>
 </head>
 <body>
+<main>
   <h1>Gif Giraffe</h1>
   <p>Placeholder. The GIF maker has not been built yet.</p>
+
+  <details class="tool-panel" open>
+    <summary>gif-giraffe-shorts-factory-tool-panel</summary>
+    <div class="tool-box">
+      <span class="name">
+        <button type="button" class="light on" data-kind="power" aria-label="shorts-factory: on" title="ON/OFF"></button>
+        <button type="button" class="light ok" data-kind="care" aria-label="shorts-factory: working correctly" title="Maintenance"></button>
+        astras-gif-maker-v0.1.0-shorts-factory-v0.1.0
+      </span>
+      <p>Makes 1080&times;1920 vertical videos (TikTok, Reels, Shorts) from a topic or script: pictures, narration, captions, crossfades. Runs on your PC; free offline by default.</p>
+      <a class="open" href="docs/shorts-factory-how-to-20261026.html">Open how-to</a>
+      <p class="why" aria-live="polite"></p>
+    </div>
+  </details>
+</main>
+<script>
+  // The paired lights. Saved in this browser only; the core does not enforce them yet (PET-PROGRAM-FRAMEWORK.md, section 4).
+  (function () {
+    var KEY = 'astras-gif-maker-shorts-factory-lights';
+    var state = { power: 'on', care: 'ok' };
+    try { var saved = JSON.parse(localStorage.getItem(KEY) || 'null'); if (saved) state = saved; } catch (e) {}
+    var why = document.querySelector('.tool-panel .why');
+    function paint() {
+      document.querySelectorAll('.tool-panel .light').forEach(function (b) {
+        var k = b.dataset.kind, v = state[k];
+        b.className = 'light ' + v;
+        b.setAttribute('aria-label', 'shorts-factory: ' + (k === 'power' ? v : (v === 'ok' ? 'working correctly' : 'requires maintenance')));
+      });
+    }
+    document.querySelectorAll('.tool-panel .light').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var k = b.dataset.kind;
+        if (k === 'power') state.power = state.power === 'on' ? 'off' : 'on';
+        else state.care = state.care === 'ok' ? 'fix' : 'ok';
+        try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+        paint();
+        why.textContent = k === 'power'
+          ? (state.power === 'on' ? 'On.' : 'Off in this browser. The command line tool does not read this switch yet.')
+          : (state.care === 'ok' ? 'Working correctly.' : 'Marked as requiring maintenance in this browser. Add a note for the backlog on the pet program page.');
+      });
+    });
+    paint();
+  })();
+</script>
 </body>
 </html>

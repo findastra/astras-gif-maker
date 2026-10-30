@@ -1,0 +1,11 @@
+[project]
+name = "shorts-factory"
+version = "0.1.0"
+description = "Shorts Factory, a tool of Astra's GIF Maker: topic -> script -> pictures -> voice -> 1080x1920 MP4. By Astra."
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = []  # standard library only; needs ffmpeg and ffprobe on PATH
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
