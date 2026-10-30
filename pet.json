@@ -3,15 +3,24 @@
   "kind": "pet-app",
   "owner": "Astra",
   "sprite": "sprite.json",
-  "job": "Placeholder for a pet app that will make GIFs.",
+  "job": "Makes GIFs in the browser: frames, seamless blending, a pastel sparkle overlay, download or Discord.",
   "runs_on": "Windows desktop, in a browser page.",
   "entry": "index.html",
   "status": "growing",
   "hub": {
     "topic": "pet-app",
-    "home": "README.md"
+    "home": "README.md",
+    "submit": {
+      "date": "2026-10-22",
+      "job": "Makes GIFs in the browser: frames, seamless blending, a pastel sparkle overlay, download or Discord.",
+      "status": "growing",
+      "audit": {
+        "cadence": "weekly",
+        "needs": "a job: what kind of GIFs should I make?"
+      }
+    }
   },
-  "built_with": "Claude Haiku 5.5 (claude-haiku-5-5), 2026-10-09; OpenAI Codex (GPT-6), 2026-10-11",
+  "built_with": "Claude Haiku 5.5 (claude-haiku-5-5), 2026-10-09; OpenAI Codex (GPT-6), 2026-10-11; Claude Opus 5 (claude-opus-5), 2026-10-22",
   "art": "art/frames/gif-giraffe",
   "icon": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/art/app-icons/astras-gif-maker/icon.png",
   "desktop_pet": "https://raw.githubusercontent.com/findastra/astras-pet-os/main/desktop-art/gif-giraffe/desktop-pet-20261011.json",
@@ -20,5 +29,33 @@
     "cadence": "weekly",
     "subject": "my plan",
     "needs": "a job: what kind of GIFs should I make?"
+  },
+  "version": "0.1.0",
+  "framework": "PET-PROGRAM-FRAMEWORK.md",
+  "intelligence_levels": {
+    "L1": {
+      "third_party": [
+        "CapCut",
+        "ShareX",
+        "gif.js"
+      ],
+      "native": [
+        {
+          "name": "Astra's GIF Maker",
+          "label": "astras-gif-maker-v0.1.0-astras-gif-maker-v1.0",
+          "does": "Makes a GIF in the browser from frames you add, with blending and a sparkle overlay.",
+          "entry": "astras-gif-maker-20261022.html",
+          "public": true,
+          "state": "Works today"
+        }
+      ],
+      "tools": []
+    },
+    "L2": {
+      "tricks": []
+    },
+    "L3": {
+      "skills": []
+    }
   }
 }

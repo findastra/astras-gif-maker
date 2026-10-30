@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Astra’s GIF Maker</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+
+  :root{
+    --void:#0a0714;
+    --deep:#150c2b;
+    --panel:#160d2a;
+    --edge: rgba(139,92,246,0.28);
+    --cyan:#5ffbf1;
+    --magenta:#ff3ec8;
+    --violet:#9b7bff;
+    --starlight:#efeaff;
+    --muted:#a89bd1;
+  }
+
+  *{box-sizing:border-box;}
+
+  html,body{
+    margin:0;
+    min-height:100vh;
+    background: var(--void);
+    color: var(--starlight);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .wrap{
+    max-width:1000px;
+    margin:0 auto;
+    padding: 40px 20px 70px;
+  }
+
+  .cluster{
+    display:grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+    align-items:start;
+  }
+  @media (max-width: 820px){
+    .cluster{ grid-template-columns: 1fr; }
+  }
+
+  .panel{
+    background: var(--panel);
+    border: 1px solid var(--edge);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .panel + .panel{ margin-top:20px; }
+
+  .panel h2{
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--cyan);
+    margin: 0 0 14px;
+    font-weight:700;
+  }
+
+  .drop{
+    border: 1.5px dashed var(--edge);
+    border-radius: 10px;
+    padding: 26px 14px;
+    text-align:center;
+    cursor:pointer;
+    transition: border-color 0.2s, background 0.2s;
+    color: var(--muted);
+    font-size:13px;
+  }
+  .drop:hover, .drop.drag{
+    border-color: var(--cyan);
+    background: rgba(95,251,241,0.05);
+    color: var(--starlight);
+  }
+  .drop input{ display:none; }
+
+  .frames{
+    margin-top:14px;
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding-bottom:6px;
+  }
+  .frame-empty{ color: var(--muted); font-size:13px; }
+
+  .thumb{
+    position:relative;
+    flex: 0 0 auto;
+    width:66px; height:66px;
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid var(--edge);
+    background:#000;
+  }
+  .thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .thumb .idx{
+    position:absolute; top:2px; left:4px;
+    font-size:9px; color: var(--cyan);
+    text-shadow:0 0 4px rgba(0,0,0,0.8);
+  }
+  .thumb .del{
+    position:absolute; top:2px; right:2px;
+    width:16px; height:16px; border-radius:50%;
+    background: rgba(10,7,20,0.75);
+    color: var(--magenta);
+    border: none; font-size:11px; line-height:16px;
+    cursor:pointer; text-align:center; padding:0;
+  }
+  .thumb .move{
+    position:absolute; bottom:2px;
+    width:16px; height:15px;
+    background: rgba(10,7,20,0.6);
+    color: var(--starlight);
+    border:none; font-size:9px; cursor:pointer; border-radius:3px;
+  }
+  .thumb .move.l{ left:2px; }
+  .thumb .move.r{ right:2px; }
+
+  .preview-canvas-wrap{
+    display:flex; align-items:center; justify-content:center;
+    min-height:200px;
+  }
+  canvas{ max-width:100%; display:block; }
+
+  label.field{
+    display:block;
+    font-size:12px;
+    color: var(--muted);
+    margin: 14px 0 6px;
+  }
+  input[type=range]{ width:100%; accent-color: var(--magenta); }
+  select{
+    width:100%;
+    background: var(--deep);
+    color: var(--starlight);
+    border:1px solid var(--edge);
+    border-radius:8px;
+    padding:7px 9px;
+    font-family:'Space Mono', monospace;
+    font-size:13px;
+  }
+  .val{ color: var(--cyan); }
+
+  .row{ display:flex; align-items:center; gap:10px; }
+  .checkbox-row{ display:flex; align-items:center; gap:8px; margin-top:14px; font-size:13px; color: var(--starlight); }
+  .checkbox-row input{ accent-color: var(--cyan); width:16px; height:16px; }
+
+  .toggle-btn{
+    padding: 9px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--edge);
+    background: transparent;
+    color: var(--starlight);
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    cursor:pointer;
+  }
+  .toggle-btn.on{
+    background: var(--magenta);
+    border-color: var(--magenta);
+    color: #0a0714;
+    font-weight:700;
+  }
+
+  /* 12 swatches laid out 6 per row (2 even rows); 4 per row on narrow screens */
+  .swatches{
+    display:grid;
+    grid-template-columns: repeat(6, 26px);
+    justify-content:start;
+    gap:8px;
+    margin-top:10px;
+  }
+  @media (max-width: 420px){
+    .swatches{ grid-template-columns: repeat(4, 26px); }
+  }
+  .swatch{
+    width:26px; height:26px;
+    border-radius:50%;
+    border: 2px solid transparent;
+    cursor:pointer;
+    padding:0;
+  }
+  .swatch.active{ border-color: var(--starlight); }
+
+  .btn{
+    display:inline-block;
+    width:100%;
+    text-align:center;
+    padding: 12px 16px;
+    margin-top:16px;
+    border-radius: 9px;
+    border:none;
+    cursor:pointer;
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    background: var(--violet);
+    color: #0a0714;
+  }
+  .btn:hover{ background: var(--cyan); }
+  .btn:disabled{ opacity:0.4; cursor:not-allowed; }
+  .btn.ghost{
+    background: transparent;
+    border: 1px solid var(--edge);
+    color: var(--starlight);
+  }
+  .btn.discord{
+    background: #5865F2;
+    color: #fff;
+  }
+  .btn.discord:hover{ background:#4752c4; }
+
+  input.webhook{
+    width:100%;
+    background: var(--deep);
+    color: var(--starlight);
+    border:1px solid var(--edge);
+    border-radius:8px;
+    padding:9px 10px;
+    font-family:'Space Mono', monospace;
+    font-size:12px;
+    margin-top:14px;
+  }
+
+  .msg{ margin-top:10px; font-size:12px; color: var(--muted); min-height:16px; }
+  .msg.err{ color: var(--magenta); }
+  .msg.ok{ color: var(--cyan); }
+
+  .progress{
+    height:6px; width:100%; border-radius:4px;
+    background: rgba(255,255,255,0.08);
+    overflow:hidden; margin-top:12px; display:none;
+  }
+  .progress .bar{ height:100%; width:0%; background: var(--cyan); }
+
+  .prog-head{ margin-bottom:22px; }
+  .prog-head h1{
+    font-size:22px; margin:0 0 6px; font-weight:700;
+    letter-spacing:0.02em; color: var(--starlight);
+  }
+  .prog-head .ver{ font-size:12px; color: var(--muted); font-weight:400; letter-spacing:0.08em; }
+  .prog-head .by{ margin:0 0 4px; font-size:13px; color: var(--muted); }
+  .prog-head .back{ margin:0; font-size:12px; }
+  .prog-head a, .prog-foot a{ color: var(--cyan); }
+  .prog-foot{
+    margin-top:28px; padding-top:14px;
+    border-top:1px solid var(--edge);
+    text-align:center; font-size:12px; color: var(--muted);
+  }
+  .prog-foot p{ margin:4px 0; }
+
+  .result{ margin-top:14px; text-align:center; display:none; }
+  .result img{ max-width:100%; border-radius:8px; border:1px solid var(--edge); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="prog-head">
+    <h1>Astra’s GIF Maker <span class="ver">V0.1.0 // 20261022</span></h1>
+    <p class="by">A native program of <strong>Astra’s GIF Maker</strong>, Gif Giraffe’s pet program in Astra’s PetOS. <em>By Astra.</em></p>
+    <p class="back"><a href="https://findastra.github.io/astras-pet-os/apps/pet-programs/astras-gif-maker-20261018.html">Back to the pet program</a></p>
+  </header>
+  <div class="cluster">
+    <div class="col-left">
+      <div class="panel">
+        <h2>add frames</h2>
+        <div class="drop" id="drop">
+          drop images here, or tap to choose files
+          <input type="file" id="fileInput" accept="image/*" multiple>
+        </div>
+        <div class="frames" id="frames">
+          <div class="frame-empty">no frames yet</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>preview</h2>
+        <div class="preview-canvas-wrap">
+          <canvas id="previewCanvas" width="320" height="320"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-right">
+      <div class="panel">
+        <h2>effects &amp; settings</h2>
+
+        <label class="field">frame delay — <span class="val" id="delayVal">200</span>ms</label>
+        <input type="range" id="delay" min="40" max="1000" step="10" value="200">
+
+        <label class="field">output size</label>
+        <select id="size">
+          <option value="240">small — 240px</option>
+          <option value="400" selected>medium — 400px</option>
+          <option value="600">large — 600px</option>
+        </select>
+
+        <label class="field">quality</label>
+        <select id="quality">
+          <option value="20">fast</option>
+          <option value="10" selected>balanced</option>
+          <option value="1">sharp — slower</option>
+        </select>
+
+        <div class="checkbox-row">
+          <input type="checkbox" id="blendToggle">
+          <label for="blendToggle">seamless blend between frames</label>
+        </div>
+        <label class="field">blend steps — <span class="val" id="stepsVal">3</span></label>
+        <input type="range" id="blendSteps" min="1" max="8" step="1" value="3">
+
+        <label class="field">sparkles</label>
+        <button class="toggle-btn" id="sparkleToggle">✦ add sparkles</button>
+        <div class="swatches" id="swatches"></div>
+
+        <button class="btn ghost" id="randomBtn">🎲 randomize effect</button>
+      </div>
+
+      <div class="panel">
+        <h2>export</h2>
+        <button class="btn" id="buildBtn">build gif</button>
+        <div class="progress" id="progress"><div class="bar" id="progressBar"></div></div>
+        <div class="result" id="result">
+          <img id="resultImg" alt="your gif">
+        </div>
+        <a class="btn ghost" id="downloadLink" download="astrasgifmaker.gif" style="display:none; text-decoration:none; margin-top:10px;">download gif</a>
+        <input class="webhook" id="webhookInput" placeholder="discord webhook url (optional)">
+        <button class="btn discord" id="discordBtn" style="display:none;">send to discord</button>
+        <div class="msg" id="exportMsg">your finished gif will appear here</div>
+      </div>
+    </div>
+  </div>
+  <footer class="prog-foot">
+    <p>Everything runs in this browser. Your images never leave this page.</p>
+    <p>✦ By Astra ✦ <a href="https://github.com/findastra/astras-gif-maker">astras-gif-maker</a> ✦ MIT</p>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+<script>
+  // ---------- state ----------
+  let frames = []; // { src, img }
+  let sparklesOn = false;
+  let sparkleColor = '#ffc2d1';
+  let lastBlob = null;
+
+  // pastel rainbow, in spectrum order (red → orange → yellow → green → blue → violet → magenta)
+  const SPARKLE_COLORS = [
+    { name:'rose',        hex:'#ffc2d1' },
+    { name:'coral',       hex:'#ffd1ba' },
+    { name:'peach',       hex:'#ffe3b3' },
+    { name:'butter',      hex:'#fff6ba' },
+    { name:'lime',        hex:'#dcf7ba' },
+    { name:'mint',        hex:'#baf2cf' },
+    { name:'seafoam',     hex:'#baf2e9' },
+    { name:'sky',         hex:'#bae1ff' },
+    { name:'periwinkle',  hex:'#c2c9ff' },
+    { name:'lavender',    hex:'#d9baff' },
+    { name:'orchid',      hex:'#f2baf5' },
+    { name:'blush',       hex:'#ffbad8' }
+  ];
+
+  // ---------- elements ----------
+  const frameContainer = document.getElementById('frames');
+  const dropZone = document.getElementById('drop');
+  const fileInput = document.getElementById('fileInput');
+  const delayInput = document.getElementById('delay');
+  const delayVal = document.getElementById('delayVal');
+  const blendToggle = document.getElementById('blendToggle');
+  const blendSteps = document.getElementById('blendSteps');
+  const stepsVal = document.getElementById('stepsVal');
+  const sparkleToggle = document.getElementById('sparkleToggle');
+  const swatchesEl = document.getElementById('swatches');
+  const randomBtn = document.getElementById('randomBtn');
+  const previewCanvas = document.getElementById('previewCanvas');
+  const ctx = previewCanvas.getContext('2d');
+  const buildBtn = document.getElementById('buildBtn');
+  const progress = document.getElementById('progress');
+  const progressBar = document.getElementById('progressBar');
+  const resultBox = document.getElementById('result');
+  const resultImg = document.getElementById('resultImg');
+  const downloadLink = document.getElementById('downloadLink');
+  const webhookInput = document.getElementById('webhookInput');
+  const discordBtn = document.getElementById('discordBtn');
+  const exportMsg = document.getElementById('exportMsg');
+
+  // ---------- swatches ----------
+  SPARKLE_COLORS.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'swatch';
+    b.style.background = c.hex;
+    b.title = c.name;
+    b.onclick = () => {
+      sparkleColor = c.hex;
+      sparklesOn = true;
+      updateSparkleUI();
+      resetPreview();
+    };
+    swatchesEl.appendChild(b);
+  });
+  function updateSparkleUI(){
+    sparkleToggle.classList.toggle('on', sparklesOn);
+    [...swatchesEl.children].forEach(el => {
+      el.classList.toggle('active', sparklesOn && el.style.background === hexToRgbStr(sparkleColor));
+    });
+  }
+  function hexToRgbStr(hex){
+    const d = document.createElement('div');
+    d.style.background = hex;
+    document.body.appendChild(d);
+    const val = getComputedStyle(d).backgroundColor;
+    document.body.removeChild(d);
+    return val;
+  }
+  sparkleToggle.onclick = () => { sparklesOn = !sparklesOn; updateSparkleUI(); resetPreview(); };
+
+  // ---------- upload ----------
+  dropZone.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', e => handleFiles(e.target.files));
+  ['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('drag'); }));
+  ['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('drag'); }));
+  dropZone.addEventListener('drop', e => { if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files); });
+
+  function handleFiles(fileList){
+    [...fileList].forEach(file => {
+      if(!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => { frames.push({ src: e.target.result, img }); renderFrames(); resetPreview(); };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderFrames(){
+    frameContainer.innerHTML = '';
+    if(frames.length === 0){
+      frameContainer.innerHTML = '<div class="frame-empty">no frames yet</div>';
+      return;
+    }
+    frames.forEach((f, i) => {
+      const t = document.createElement('div');
+      t.className = 'thumb';
+      t.innerHTML = `
+        <img src="${f.src}">
+        <span class="idx">${i+1}</span>
+        <button class="del" title="remove">×</button>
+        <button class="move l" title="move left">‹</button>
+        <button class="move r" title="move right">›</button>
+      `;
+      t.querySelector('.del').onclick = () => { frames.splice(i,1); renderFrames(); resetPreview(); };
+      t.querySelector('.move.l').onclick = () => { if(i>0){ [frames[i-1],frames[i]]=[frames[i],frames[i-1]]; renderFrames(); resetPreview(); } };
+      t.querySelector('.move.r').onclick = () => { if(i<frames.length-1){ [frames[i+1],frames[i]]=[frames[i],frames[i+1]]; renderFrames(); resetPreview(); } };
+      frameContainer.appendChild(t);
+    });
+  }
+
+  // ---------- drawing helpers ----------
+  function fillBg(context, w, h){
+    context.fillStyle = '#0a0714';
+    context.fillRect(0,0,w,h);
+  }
+  function drawCentered(context, img, w, h){
+    // cover (not contain) — fills the whole canvas, cropping overflow,
+    // so there's never a letterbox/pillarbox bar around the image
+    const scale = Math.max(w/img.width, h/img.height);
+    const dw = img.width*scale, dh = img.height*scale;
+    context.drawImage(img, (w-dw)/2, (h-dh)/2, dw, dh);
+  }
+  // dense starfield overlay — many tiny flecks + a handful of bright
+  // four-point glints, mixing the chosen sparkle color across the full
+  // pastel rainbow palette plus white highlights, like a real star photo.
+  // every star's position is kept inset from the canvas edge by its own
+  // radius so glow/spikes never get clipped off the side.
+  function dustColor(){
+    const r = Math.random();
+    if(r < 0.3) return sparkleColor;
+    if(r < 0.5) return '#ffffff';
+    return SPARKLE_COLORS[Math.floor(Math.random()*SPARKLE_COLORS.length)].hex;
+  }
+  function insetRandom(dim, margin){
+    if(dim <= margin*2) return dim/2;
+    return margin + Math.random()*(dim - margin*2);
+  }
+  function drawDust(context, x, y, size, color){
+    context.save();
+    context.globalAlpha = 0.35 + Math.random()*0.5;
+    context.fillStyle = color;
+    context.beginPath();
+    context.arc(x, y, size, 0, Math.PI*2);
+    context.fill();
+    context.restore();
+  }
+  function drawGlintStar(context, x, y, size, color){
+    context.save();
+    context.translate(x, y);
+    context.globalCompositeOperation = 'lighter';
+    const core = context.createRadialGradient(0,0,0, 0,0,size*2.4);
+    core.addColorStop(0, 'rgba(255,255,255,0.95)');
+    core.addColorStop(0.3, color);
+    core.addColorStop(1, 'rgba(0,0,0,0)');
+    context.fillStyle = core;
+    context.beginPath();
+    context.arc(0, 0, size*2.4, 0, Math.PI*2);
+    context.fill();
+    context.strokeStyle = color;
+    context.lineWidth = Math.max(0.6, size*0.14);
+    context.globalAlpha = 0.9;
+    context.beginPath();
+    context.moveTo(-size*3, 0); context.lineTo(size*3, 0);
+    context.moveTo(0, -size*3); context.lineTo(0, size*3);
+    context.stroke();
+    context.globalAlpha = 0.5;
+    context.lineWidth = Math.max(0.4, size*0.08);
+    context.beginPath();
+    context.moveTo(-size*1.6,-size*1.6); context.lineTo(size*1.6,size*1.6);
+    context.moveTo(-size*1.6,size*1.6); context.lineTo(size*1.6,-size*1.6);
+    context.stroke();
+    context.restore();
+  }
+  function drawSparkles(context, w, h){
+    const area = w*h;
+    // fine dust — denser and smaller, for the fine-grain speckle look
+    const dustCount = Math.max(70, Math.round(area/550));
+    for(let i=0;i<dustCount;i++){
+      const size = 0.35 + Math.random()*1.1;
+      const margin = size + 0.5;
+      drawDust(context, insetRandom(w, margin), insetRandom(h, margin), size, dustColor());
+    }
+    const midCount = 10 + Math.floor(Math.random()*8);
+    for(let i=0;i<midCount;i++){
+      const size = 1.2 + Math.random()*1.3;
+      const margin = size*3.2;
+      drawGlintStar(context, insetRandom(w, margin), insetRandom(h, margin), size, dustColor());
+    }
+    const bigCount = 4 + Math.floor(Math.random()*4);
+    for(let i=0;i<bigCount;i++){
+      const size = 2.6 + Math.random()*2.8;
+      const margin = size*3.2;
+      const color = Math.random() < 0.5 ? sparkleColor : dustColor();
+      drawGlintStar(context, insetRandom(w, margin), insetRandom(h, margin), size, color);
+    }
+  }
+
+  function drawDescriptor(context, desc, w, h){
+    fillBg(context, w, h);
+    if(desc.type === 'frame'){
+      drawCentered(context, desc.img, w, h);
+    } else {
+      drawCentered(context, desc.imgA, w, h);
+      context.globalAlpha = desc.t;
+      drawCentered(context, desc.imgB, w, h);
+      context.globalAlpha = 1;
+    }
+    if(sparklesOn) drawSparkles(context, w, h);
+  }
+
+  // ---------- sequence (shared by preview + export) ----------
+  function buildSequence(){
+    const seq = [];
+    const n = frames.length;
+    if(n === 0) return seq;
+    const delay = Number(delayInput.value);
+    const steps = blendToggle.checked ? Number(blendSteps.value) : 0;
+    for(let i=0;i<n;i++){
+      seq.push({ type:'frame', img: frames[i].img, delay });
+      if(steps > 0 && n > 1){
+        const nextImg = frames[(i+1)%n].img;
+        const stepDelay = Math.max(20, Math.round(delay/(steps+1)));
+        for(let s=1;s<=steps;s++){
+          seq.push({ type:'blend', imgA: frames[i].img, imgB: nextImg, t: s/(steps+1), delay: stepDelay });
+        }
+      }
+    }
+    return seq;
+  }
+
+  // ---------- live preview ----------
+  let previewTimer = null;
+  function resetPreview(){
+    if(previewTimer) clearTimeout(previewTimer);
+    const seq = buildSequence();
+    if(seq.length === 0){
+      fillBg(ctx, previewCanvas.width, previewCanvas.height);
+      return;
+    }
+    let idx = 0;
+    const step = () => {
+      const d = seq[idx % seq.length];
+      drawDescriptor(ctx, d, previewCanvas.width, previewCanvas.height);
+      idx++;
+      previewTimer = setTimeout(step, d.delay);
+    };
+    step();
+  }
+  delayInput.addEventListener('input', () => { delayVal.textContent = delayInput.value; });
+  delayInput.addEventListener('change', resetPreview);
+  blendToggle.addEventListener('change', resetPreview);
+  blendSteps.addEventListener('input', () => { stepsVal.textContent = blendSteps.value; });
+  blendSteps.addEventListener('change', resetPreview);
+
+  // ---------- randomize ----------
+  randomBtn.addEventListener('click', () => {
+    delayInput.value = [80,120,160,200,260,320,400][Math.floor(Math.random()*7)];
+    delayVal.textContent = delayInput.value;
+    blendToggle.checked = Math.random() > 0.4;
+    blendSteps.value = 1 + Math.floor(Math.random()*7);
+    stepsVal.textContent = blendSteps.value;
+    sparklesOn = Math.random() > 0.35;
+    sparkleColor = SPARKLE_COLORS[Math.floor(Math.random()*SPARKLE_COLORS.length)].hex;
+    updateSparkleUI();
+    resetPreview();
+  });
+
+  // ---------- build gif ----------
+  buildBtn.addEventListener('click', () => {
+    exportMsg.textContent = '';
+    exportMsg.className = 'msg';
+    if(frames.length < 2){
+      exportMsg.textContent = 'add at least 2 frames to build a gif';
+      exportMsg.className = 'msg err';
+      return;
+    }
+    const size = Number(document.getElementById('size').value);
+    const quality = Number(document.getElementById('quality').value);
+    const seq = buildSequence();
+
+    runGifBuild(seq, size, quality, true);
+  });
+
+  // Builds the gif. If nothing happens for a few seconds — the most common
+  // cause is the browser blocking/stalling the external worker script —
+  // it automatically retries once with workers disabled (everything runs
+  // on the main thread instead, which can't hang on a worker load).
+  function runGifBuild(seq, size, quality, allowFallback){
+    buildBtn.disabled = true;
+    progress.style.display = 'block';
+    progressBar.style.width = '0%';
+    exportMsg.textContent = allowFallback ? 'building your gif…' : 'retrying without background workers…';
+    exportMsg.className = 'msg';
+    resultBox.style.display = 'none';
+    downloadLink.style.display = 'none';
+    discordBtn.style.display = 'none';
+
+    let settled = false;
+    let gif;
+    const useWorkers = allowFallback; // first attempt uses workers; the retry does not
+
+    const watchdog = allowFallback ? setTimeout(() => {
+      if(settled) return;
+      settled = true;
+      try{ gif.abort(); }catch(e){}
+      runGifBuild(seq, size, quality, false);
+    }, 6000) : null;
+
+    try{
+      gif = new GIF(useWorkers ? {
+        workers: 2,
+        quality: quality,
+        width: size,
+        height: size,
+        workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+      } : {
+        workers: 0,
+        quality: quality,
+        width: size,
+        height: size
+      });
+    } catch(err){
+      if(watchdog) clearTimeout(watchdog);
+      if(allowFallback){ runGifBuild(seq, size, quality, false); return; }
+      exportMsg.textContent = 'could not build a gif in this browser';
+      exportMsg.className = 'msg err';
+      buildBtn.disabled = false;
+      progress.style.display = 'none';
+      return;
+    }
+
+    seq.forEach(desc => {
+      const c = document.createElement('canvas');
+      c.width = size; c.height = size;
+      const cctx = c.getContext('2d');
+      drawDescriptor(cctx, desc, size, size);
+      gif.addFrame(c, { delay: desc.delay, copy: true });
+    });
+
+    gif.on('progress', p => {
+      if(settled) return;
+      progressBar.style.width = Math.round(p*100)+'%';
+    });
+
+    gif.on('finished', blob => {
+      if(settled) return;
+      settled = true;
+      if(watchdog) clearTimeout(watchdog);
+      lastBlob = blob;
+      const url = URL.createObjectURL(blob);
+      resultImg.src = url;
+      resultBox.style.display = 'block';
+      downloadLink.href = url;
+      downloadLink.style.display = 'inline-block';
+      discordBtn.style.display = 'inline-block';
+      exportMsg.textContent = 'gif built — download it or send it to discord';
+      exportMsg.className = 'msg ok';
+      buildBtn.disabled = false;
+      progress.style.display = 'none';
+    });
+
+    gif.on('abort', () => { /* handled by watchdog fallback */ });
+
+    try{
+      gif.render();
+    } catch(err){
+      if(settled) return;
+      settled = true;
+      if(watchdog) clearTimeout(watchdog);
+      if(allowFallback){ runGifBuild(seq, size, quality, false); return; }
+      exportMsg.textContent = 'could not build a gif in this browser';
+      exportMsg.className = 'msg err';
+      buildBtn.disabled = false;
+      progress.style.display = 'none';
+    }
+  }
+
+  // ---------- discord upload ----------
+  discordBtn.addEventListener('click', async () => {
+    const url = webhookInput.value.trim();
+    if(!url){
+      exportMsg.textContent = 'paste a discord webhook url first';
+      exportMsg.className = 'msg err';
+      return;
+    }
+    if(!lastBlob){
+      exportMsg.textContent = 'build a gif first';
+      exportMsg.className = 'msg err';
+      return;
+    }
+    exportMsg.textContent = 'sending to discord…';
+    exportMsg.className = 'msg';
+    const fd = new FormData();
+    fd.append('file', lastBlob, 'astrasgifmaker.gif');
+    try{
+      const res = await fetch(url, { method:'POST', body: fd });
+      if(res.ok){
+        exportMsg.textContent = 'sent to discord';
+        exportMsg.className = 'msg ok';
+      } else {
+        exportMsg.textContent = 'discord rejected the upload (status '+res.status+')';
+        exportMsg.className = 'msg err';
+      }
+    } catch(err){
+      exportMsg.textContent = 'could not reach discord — check the webhook url';
+      exportMsg.className = 'msg err';
+    }
+  });
+
+  // ---------- init ----------
+  updateSparkleUI();
+  resetPreview();
+</script>
+</body>
+</html>
